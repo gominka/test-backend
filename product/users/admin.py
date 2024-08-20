@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from users.models import CustomUser, Balance
+
+admin.site.register(CustomUser)
+admin.site.register(Balance)
+

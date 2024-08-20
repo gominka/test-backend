@@ -1,15 +1,13 @@
 from django.db import models
-from product.users.models import CustomUser
+
+from users.models import CustomUser
 
 
 class Course(models.Model):
     """Модель продукта - курса."""
 
     author = models.CharField(
-        CustomUser,
-        on_delete=models.CASCADE,
         max_length=250,
-        related_name='created_courses',
         verbose_name='Автор',
     )
     title = models.CharField(
@@ -75,8 +73,10 @@ class Group(models.Model):
     )
     students = models.ManyToManyField(
         CustomUser,
-        related_name='groups',
-        verbose_name='Студенты'
+        related_name='student_groups',
+        verbose_name='Студенты',
+        default=0
+
     )
     name = models.CharField(
         max_length=50,

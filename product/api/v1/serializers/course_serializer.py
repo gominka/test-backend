@@ -49,10 +49,16 @@ class StudentSerializer(serializers.ModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
     """Список групп."""
 
-    # TODO Доп. задание
+    students = StudentSerializer(many=True, read_only=True)
+    filled_percent = serializers.SerializerMethodField()
 
     class Meta:
         model = Group
+
+    def get_filled_percent(self, obj):
+        """Процент заполненности группы."""
+        max_students = 30
+        return (obj.students.count() / max_students) * 100
 
 
 class CreateGroupSerializer(serializers.ModelSerializer):
@@ -87,19 +93,26 @@ class CourseSerializer(serializers.ModelSerializer):
 
     def get_lessons_count(self, obj):
         """Количество уроков в курсе."""
-        # TODO Доп. задание
+        return obj.lessons.count()
 
     def get_students_count(self, obj):
         """Общее количество студентов на курсе."""
-        # TODO Доп. задание
+        return Subscription.objects.filter(course=obj, active=True).count()
 
     def get_groups_filled_percent(self, obj):
         """Процент заполнения групп, если в группе максимум 30 чел.."""
-        # TODO Доп. задание
+        total_students = self.get_students_count(obj)
+        total_groups = obj.groups.count()
+        max_capacity = total_groups * 30
+        return (total_students / max_capacity) * 100 if max_capacity > 0 else 0
+
 
     def get_demand_course_percent(self, obj):
         """Процент приобретения курса."""
-        # TODO Доп. задание
+        total_users = User.objects.count()
+        subscribed_users = self.get_students_count(obj)
+        return (subscribed_users / total_users) * 100 if total_users > 0 else 0
+
 
     class Meta:
         model = Course
@@ -120,5 +133,12 @@ class CourseSerializer(serializers.ModelSerializer):
 class CreateCourseSerializer(serializers.ModelSerializer):
     """Создание курсов."""
 
+
     class Meta:
         model = Course
+        fields = (
+            'author',
+            'title',
+            'start_date',
+            'price',
+        )

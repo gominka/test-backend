@@ -72,9 +72,37 @@ class CourseViewSet(viewsets.ModelViewSet):
     def pay(self, request, pk):
         """Покупка доступа к курсу (подписка на курс)."""
 
-        # TODO
+        user = request.user
+        course = self.get_object()
 
+        # Проверяем, не подписан ли уже пользователь на этот курс
+        if Subscription.objects.filter(user=user, course=course, active=True).exists():
+            return Response(
+                {"error": "You are already subscribed to this course."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Проверяем, достаточно ли у пользователя средств на балансе
+        if user.balance.amount < course.price:
+            return Response(
+                {"error": "Insufficient funds."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Списываем стоимость курса с баланса пользователя
+        user.balance.amount -= course.price
+        user.balance.save()
+
+        # Создаем подписку на курс
+        subscription = Subscription.objects.create(
+            user=user,
+            course=course,
+            active=True
+        )
+
+        # Возвращаем успешный ответ с информацией о подписке
+        serializer = SubscriptionSerializer(subscription)
         return Response(
-            data=data,
+            data=serializer.data,
             status=status.HTTP_201_CREATED
         )

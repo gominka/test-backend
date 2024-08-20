@@ -6,4 +6,4 @@ class CoursesConfig(AppConfig):
     name = 'courses'
 
     def ready(self):
-        import courses.signals
+        from . import signals

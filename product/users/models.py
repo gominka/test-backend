@@ -35,7 +35,8 @@ class Balance(models.Model):
         CustomUser,
         on_delete=models.CASCADE,
         related_name='balance',
-        verbose_name='Пользователь'
+        verbose_name='Пользователь',
+        default=0
     )
     amount = models.DecimalField(
         max_digits=10,
@@ -69,13 +70,15 @@ class Subscription(models.Model):
         CustomUser,
         on_delete=models.CASCADE,
         related_name='subscriptions',
-        verbose_name='Пользователь'
+        verbose_name='Пользователь',
+        default=0
     )
     course = models.ForeignKey(
         'courses.Course',
         on_delete=models.CASCADE,
         related_name='subscriptions',
-        verbose_name='Курс'
+        verbose_name='Курс',
+        default=0
     )
     active = models.BooleanField(
         default=True,
