@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя - студента."""
@@ -29,21 +31,62 @@ class CustomUser(AbstractUser):
 class Balance(models.Model):
     """Модель баланса пользователя."""
 
-    # TODO
+    user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='balance',
+        verbose_name='Пользователь'
+    )
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=1000,
+        verbose_name='Баланс'
+    )
 
     class Meta:
         verbose_name = 'Баланс'
         verbose_name_plural = 'Балансы'
         ordering = ('-id',)
 
+    def __str__(self):
+        return f'{self.user.get_full_name()} - {self.amount}'
+
+    def save(self, *args, **kwargs):
+        if self.amount < 0:
+            self.amount = 0
+        super().save(*args, **kwargs)
+
+@receiver(post_save, sender=CustomUser)
+def create_user_balance(sender, instance, created, **kwargs):
+    if created:
+        Balance.objects.create(user=instance)
 
 class Subscription(models.Model):
     """Модель подписки пользователя на курс."""
 
-    # TODO
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+        verbose_name='Пользователь'
+    )
+    course = models.ForeignKey(
+        'courses.Course',
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+        verbose_name='Курс'
+    )
+    active = models.BooleanField(
+        default=True,
+        verbose_name='Активна'
+    )
 
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         ordering = ('-id',)
+
+    def __str__(self):
+        return f'{self.user.get_full_name()} - {self.course.title}'
 

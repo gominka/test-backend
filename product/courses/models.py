@@ -1,11 +1,15 @@
 from django.db import models
+from product.users.models import CustomUser
 
 
 class Course(models.Model):
     """Модель продукта - курса."""
 
     author = models.CharField(
+        CustomUser,
+        on_delete=models.CASCADE,
         max_length=250,
+        related_name='created_courses',
         verbose_name='Автор',
     )
     title = models.CharField(
@@ -18,7 +22,11 @@ class Course(models.Model):
         verbose_name='Дата и время начала курса'
     )
 
-    # TODO
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name='Стоимость'
+    )
 
     class Meta:
         verbose_name = 'Курс'
@@ -27,7 +35,6 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
-
 
 class Lesson(models.Model):
     """Модель урока."""
@@ -41,7 +48,12 @@ class Lesson(models.Model):
         verbose_name='Ссылка',
     )
 
-    # TODO
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='lessons',
+        verbose_name='Курс'
+    )
 
     class Meta:
         verbose_name = 'Урок'
@@ -55,8 +67,21 @@ class Lesson(models.Model):
 class Group(models.Model):
     """Модель группы."""
 
-    # TODO
-
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='groups',
+        verbose_name='Курс'
+    )
+    students = models.ManyToManyField(
+        CustomUser,
+        related_name='groups',
+        verbose_name='Студенты'
+    )
+    name = models.CharField(
+        max_length=50,
+        verbose_name='Название группы'
+    )
     class Meta:
         verbose_name = 'Группа'
         verbose_name_plural = 'Группы'
