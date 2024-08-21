@@ -65,7 +65,7 @@ class Lesson(models.Model):
 class Group(models.Model):
     """Модель группы."""
 
-    name = models.CharField(
+    title = models.CharField(
         max_length=50,
         verbose_name='Название группы'
     )
@@ -89,4 +89,4 @@ class Group(models.Model):
         ordering = ('-id',)
 
     def __str__(self):
-        return self.name
+        return self.title
