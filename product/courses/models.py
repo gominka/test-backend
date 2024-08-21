@@ -65,6 +65,11 @@ class Lesson(models.Model):
 class Group(models.Model):
     """Модель группы."""
 
+    name = models.CharField(
+        max_length=50,
+        verbose_name='Название группы'
+    )
+
     course = models.ForeignKey(
         Course,
         on_delete=models.CASCADE,
@@ -75,13 +80,9 @@ class Group(models.Model):
         CustomUser,
         related_name='student_groups',
         verbose_name='Студенты',
-        default=0
+        blank=True
+    )
 
-    )
-    name = models.CharField(
-        max_length=50,
-        verbose_name='Название группы'
-    )
     class Meta:
         verbose_name = 'Группа'
         verbose_name_plural = 'Группы'

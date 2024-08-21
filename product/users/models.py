@@ -71,14 +71,14 @@ class Subscription(models.Model):
         on_delete=models.CASCADE,
         related_name='subscriptions',
         verbose_name='Пользователь',
-        default=0
+        blank=True
     )
     course = models.ForeignKey(
         'courses.Course',
         on_delete=models.CASCADE,
         related_name='subscriptions',
         verbose_name='Курс',
-        default=0
+        blank=True
     )
     active = models.BooleanField(
         default=True,
